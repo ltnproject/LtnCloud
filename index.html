@@ -1,155 +1,764 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ltn Project Dashboard</title>
-    <style>
-        * {margin: 0; padding: 0; box-sizing: border-box;}
-        body {font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding:20px;}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cloud Storage</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        /* Login Modal */
-        .login-modal {
-            position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8);
-            display:flex; justify-content:center; align-items:center; z-index:2000;
-        }
-        .login-modal.hidden {display:none;}
-        .login-content {
-            background:white; padding:40px; border-radius:25px; text-align:center; max-width:400px; width:90%;
-            box-shadow:0 15px 50px rgba(0,0,0,0.3);
-        }
-        .login-content input {
-            width:100%; padding:12px 15px; margin-bottom:15px; border-radius:15px; border:1px solid #ccc;
-        }
-        .login-content button {
-            width:100%; padding:12px; border:none; border-radius:25px; background:#667eea; color:white;
-            font-weight:bold; cursor:pointer; font-size:1rem;
-        }
-        .login-content button:hover {background:#764ba2;}
-        .login-error {color:red; font-weight:bold; margin-top:10px;}
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
 
-        /* rest of your styles kept intact */
-        .language-modal, .modal-content, .modal-logo, .modal-title, .modal-subtitle, .modal-buttons, .modal-lang-btn,
-        .container, .header, .logo-container, .title, .language-picker, .lang-btn, .cards-grid, .card,
-        .card-icon, .card-title, .card-description, .card-buttons, .card-link, .tutorial-btn, .modal-overlay,
-        .video-modal, .video-container, .close-modal, .modal-title-text, .footer {
-            /* All previous styles remain the same, just omitted here for brevity */
-        }
-    </style>
+    .container {
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    .auth-screen, .app-screen {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+
+    .auth-screen {
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 48px;
+      text-align: center;
+    }
+
+    .auth-screen h1 {
+      color: #667eea;
+      margin-bottom: 12px;
+      font-size: 32px;
+    }
+
+    .auth-screen p {
+      color: #666;
+      margin-bottom: 32px;
+    }
+
+    .auth-btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 12px;
+    }
+
+    .google-btn {
+      background: white;
+      border: 2px solid #ddd;
+      color: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .google-btn:hover {
+      border-color: #667eea;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .email-form {
+      text-align: left;
+      margin-top: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      color: #333;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .primary-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .primary-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .link-btn {
+      background: none;
+      border: none;
+      color: #667eea;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 12px;
+    }
+
+    .app-screen {
+      display: none;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h1 {
+      font-size: 24px;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .storage-badge {
+      background: rgba(255,255,255,0.2);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+    }
+
+    .logout-btn {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s;
+    }
+
+    .logout-btn:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .main-content {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .sidebar {
+      width: 250px;
+      background: #f8f9fa;
+      padding: 24px;
+      border-right: 1px solid #e0e0e0;
+      overflow-y: auto;
+    }
+
+    .upload-btn {
+      width: 100%;
+      padding: 12px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 24px;
+      transition: all 0.3s;
+    }
+
+    .upload-btn:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+    }
+
+    .folder-list {
+      list-style: none;
+    }
+
+    .folder-item {
+      padding: 10px 12px;
+      margin-bottom: 4px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .folder-item:hover {
+      background: #e0e0e0;
+    }
+
+    .folder-item.active {
+      background: #667eea;
+      color: white;
+    }
+
+    .content-area {
+      flex: 1;
+      padding: 32px;
+      overflow-y: auto;
+    }
+
+    .breadcrumb {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .breadcrumb span {
+      cursor: pointer;
+    }
+
+    .breadcrumb span:hover {
+      color: #667eea;
+    }
+
+    .file-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 16px;
+    }
+
+    .file-card {
+      background: white;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: center;
+    }
+
+    .file-card:hover {
+      border-color: #667eea;
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    }
+
+    .file-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    .file-preview {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+
+    .file-name {
+      font-size: 13px;
+      color: #333;
+      word-break: break-word;
+      margin-bottom: 8px;
+    }
+
+    .file-size {
+      font-size: 11px;
+      color: #999;
+    }
+
+    .file-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      justify-content: center;
+    }
+
+    .action-btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.2s;
+    }
+
+    .download-btn {
+      background: #4caf50;
+      color: white;
+    }
+
+    .delete-btn {
+      background: #f44336;
+      color: white;
+    }
+
+    .action-btn:hover {
+      opacity: 0.8;
+      transform: scale(1.05);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 16px;
+      padding: 32px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .modal-content img, .modal-content video {
+      max-width: 100%;
+      border-radius: 8px;
+    }
+
+    .close-modal {
+      float: right;
+      font-size: 28px;
+      cursor: pointer;
+      color: #999;
+      line-height: 1;
+    }
+
+    .close-modal:hover {
+      color: #333;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #999;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #999;
+    }
+
+    .empty-state-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 4px;
+      background: #e0e0e0;
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: #667eea;
+      transition: width 0.3s;
+    }
+  </style>
 </head>
 <body>
-    <!-- Login Modal -->
-    <div class="login-modal" id="loginModal">
-        <div class="login-content">
-            <h2>Ltn Project Admin Login</h2>
-            <input type="password" id="adminPassword" placeholder="Enter password">
-            <button onclick="checkLogin()">Login</button>
-            <p class="login-error" id="loginError"></p>
+  <div class="container">
+    <!-- Auth Screen -->
+    <div class="auth-screen" id="authScreen">
+      <h1>☁️ Cloud Storage</h1>
+      <p>Secure file storage with Firestore</p>
+      
+      <button class="auth-btn google-btn" onclick="signInWithGoogle()">
+        <svg width="20" height="20" viewBox="0 0 20 20">
+          <path fill="#4285F4" d="M19.6 10.23c0-.82-.1-1.42-.25-2.05H10v3.72h5.5c-.15.96-.74 2.31-2.04 3.22v2.45h3.16c1.89-1.73 2.98-4.3 2.98-7.34z"/>
+          <path fill="#34A853" d="M13.46 15.13c-.83.59-1.96 1-3.46 1-2.64 0-4.88-1.74-5.68-4.15H1.07v2.52C2.72 17.75 6.09 20 10 20c2.7 0 4.96-.89 6.62-2.42l-3.16-2.45z"/>
+          <path fill="#FBBC05" d="M3.99 10c0-.69.12-1.35.32-1.97V5.51H1.07A9.973 9.973 0 000 10c0 1.61.39 3.14 1.07 4.49l3.24-2.52c-.2-.62-.32-1.28-.32-1.97z"/>
+          <path fill="#EA4335" d="M10 3.88c1.88 0 3.13.81 3.85 1.48l2.84-2.76C14.96.99 12.7 0 10 0 6.09 0 2.72 2.25 1.07 5.51l3.24 2.52C5.12 5.62 7.36 3.88 10 3.88z"/>
+        </svg>
+        Continue with Google
+      </button>
+
+      <div style="margin: 20px 0; color: #999;">or</div>
+
+      <form class="email-form" id="emailForm" onsubmit="handleEmailAuth(event)">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="email" required>
         </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="password" required minlength="6">
+        </div>
+        <button type="submit" class="auth-btn primary-btn">Sign In / Sign Up</button>
+      </form>
     </div>
 
-    <!-- Language Modal -->
-    <div class="language-modal" id="languageModal">
-        <div class="modal-content">
-            <div class="modal-logo">
-                <img src="https://i.ibb.co/7NW0Nn55/IMG-0997.jpg" alt="Ltn Project Logo">
-            </div>
-            <h2 class="modal-title">Ltn Project</h2>
-            <p class="modal-subtitle">Choose Language / เลือกภาษา</p>
-            <div class="modal-buttons">
-                <button class="modal-lang-btn" onclick="selectLanguage('en')">English</button>
-                <button class="modal-lang-btn" onclick="selectLanguage('th')">ไทย</button>
-            </div>
+    <!-- App Screen -->
+    <div class="app-screen" id="appScreen">
+      <div class="header">
+        <h1>☁️ My Storage</h1>
+        <div class="user-info">
+          <span class="storage-badge" id="storageInfo">0 files</span>
+          <span id="userEmail"></span>
+          <button class="logout-btn" onclick="signOut()">Logout</button>
         </div>
+      </div>
+      
+      <div class="main-content">
+        <div class="sidebar">
+          <input type="file" id="fileInput" multiple onchange="uploadFiles(event)">
+          <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+            📤 Upload Files
+          </button>
+          
+          <ul class="folder-list">
+            <li class="folder-item active" onclick="changeFolder('all')" data-folder="all">
+              📁 All Files
+            </li>
+            <li class="folder-item" onclick="changeFolder('images')" data-folder="images">
+              🖼️ Images
+            </li>
+            <li class="folder-item" onclick="changeFolder('videos')" data-folder="videos">
+              🎥 Videos
+            </li>
+            <li class="folder-item" onclick="changeFolder('documents')" data-folder="documents">
+              📄 Documents
+            </li>
+          </ul>
+        </div>
+        
+        <div class="content-area">
+          <div class="breadcrumb">
+            <span onclick="changeFolder('all')">Home</span>
+            <span id="currentFolder"></span>
+          </div>
+          
+          <div id="fileList" class="file-grid"></div>
+          <div id="emptyState" class="empty-state hidden">
+            <div class="empty-state-icon">📭</div>
+            <p>No files yet. Upload your first file!</p>
+          </div>
+          <div id="loading" class="loading hidden">Loading...</div>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <!-- Language Picker -->
-    <div class="language-picker">
-        <button class="lang-btn active" onclick="setLanguage('en')">English</button>
-        <button class="lang-btn" onclick="setLanguage('th')">ไทย</button>
+  <!-- Preview Modal -->
+  <div class="modal" id="previewModal">
+    <div class="modal-content">
+      <span class="close-modal" onclick="closePreview()">&times;</span>
+      <div id="previewContent"></div>
     </div>
+  </div>
 
-    <!-- Dashboard Container -->
-    <div class="container" id="dashboardContainer" style="display:none;">
-        <div class="header">
-            <div class="logo-container">
-                <img src="https://i.ibb.co/7NW0Nn55/IMG-0997.jpg" alt="Ltn Project Logo">
-            </div>
-            <h1 class="title" data-th="Ltn Project Dashboard" data-en="Ltn Project Dashboard">Ltn Project Dashboard</h1>
-        </div>
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+    import { getAuth, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, onAuthStateChanged, signOut as fbSignOut } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+    import { getFirestore, collection, addDoc, query, where, getDocs, deleteDoc, doc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
 
-        <div class="cards-grid">
-            <div class="card" style="animation-delay: 0.1s;">
-                <div class="card-icon">🧠</div>
-                <h2 class="card-title" data-th="เกมฝึกสมองและความจำ" data-en="Brain & Memory Training Games">Brain & Memory Training Games</h2>
-                <p class="card-description" data-th="ฝึกฝนทักษะการคิดและความจำของคุณด้วยเกมที่สนุกและท้าทาย" data-en="Train your cognitive skills and memory with fun and challenging games">Train your cognitive skills and memory with fun and challenging games</p>
-                <div class="card-buttons">
-                    <a href="https://ltnproject.github.io/ltnmem/" class="card-link" data-th="เริ่มเล่น" data-en="Start Playing">Start Playing</a>
-                    <a href="#" class="tutorial-btn" onclick="openTutorial(event)" data-th="ดูวิธีเล่น" data-en="Watch Tutorial">Watch Tutorial</a>
-                </div>
-            </div>
-            <div class="card" style="animation-delay: 0.2s;">
-                <div class="card-icon">⌨️</div>
-                <h2 class="card-title" data-th="ฝึกความเร็วในการพิมพ์" data-en="Typing Speed Master">Typing Speed Master</h2>
-                <p class="card-description" data-th="พัฒนาทักษะการพิมพ์ของคุณและเพิ่มความเร็วในการพิมพ์อย่างมืออาชีพ" data-en="Develop your typing skills and increase your typing speed professionally">Develop your typing skills and increase your typing speed professionally</p>
-                <a href="https://ltnproject.github.io/ltntyping/" class="card-link" data-th="เริ่มฝึก" data-en="Start Training">Start Training</a>
-            </div>
-            <div class="card" style="animation-delay: 0.3s;">
-                <div class="card-icon">👾</div>
-                <h2 class="card-title" data-th="Pac-Man" data-en="Pac-Man">Pac-Man</h2>
-                <p class="card-description" data-th="เพลิดเพลินกับเกมคลาสสิกที่ทุกคนรู้จัก สนุกไปกับการหนีผีและกินเม็ดทั้งหมด" data-en="Enjoy the classic game everyone knows. Have fun escaping ghosts and eating all the dots">Enjoy the classic game everyone knows. Have fun escaping ghosts and eating all the dots</p>
-                <a href="https://ltnproject.github.io/ltnpacman/" class="card-link" data-th="เล่นเลย" data-en="Play Now">Play Now</a>
-            </div>
-        </div>
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyB-yT8Zi9VUsBwdaYlWgMu7LmSLQA5q4BU",
+      authDomain: "ltncloud.firebaseapp.com",
+      projectId: "ltncloud",
+      storageBucket: "ltncloud.firebasestorage.app",
+      messagingSenderId: "224753901340",
+      appId: "1:224753901340:web:1055453940a498d6e8a4d9",
+      measurementId: "G-CLLZ9E7SRP"
+    };
 
-        <div class="footer">
-            <p data-th="© 2025 Ltn Project โดย Jacob" data-en="© 2025 Ltn Project by Jacob">© 2025 Ltn Project by Jacob</p>
-        </div>
-    </div>
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    
+    let currentUser = null;
+    let currentFolderPath = 'all';
+    let unsubscribe = null;
 
-    <!-- Tutorial Modal -->
-    <div class="modal-overlay" id="tutorialModal" onclick="closeTutorialOnBackground(event)">
-        <div class="video-modal">
-            <button class="close-modal" onclick="closeTutorial()">×</button>
-            <h3 class="modal-title-text" data-th="วิธีเล่นเกมฝึกสมองและความจำ" data-en="Brain & Memory Training Games Tutorial">Brain & Memory Training Games Tutorial</h3>
-            <div class="video-container">
-                <iframe allow="fullscreen" allowfullscreen src="https://streamable.com/e/sdqjxt?"></iframe>
-            </div>
-        </div>
-    </div>
+    // Auth state observer
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user;
+        showApp();
+        loadFiles();
+      } else {
+        showAuth();
+      }
+    });
 
-    <script>
-        // SINGLE ADMIN PASSWORD LOGIN
-        const ADMIN_PASSWORD = "LtnProjAdmin"; // <-- change this to your password
-        const loginModal = document.getElementById("loginModal");
-        const dashboard = document.getElementById("dashboardContainer");
-        const loginError = document.getElementById("loginError");
+    window.signInWithGoogle = async () => {
+      const provider = new GoogleAuthProvider();
+      try {
+        await signInWithPopup(auth, provider);
+      } catch (error) {
+        alert('Error signing in: ' + error.message);
+      }
+    };
 
-        function checkLogin() {
-            const pw = document.getElementById("adminPassword").value;
-            if(pw === ADMIN_PASSWORD) {
-                loginModal.classList.add("hidden");
-                dashboard.style.display = "block";
-            } else {
-                loginError.textContent = "Incorrect password!";
-            }
+    window.handleEmailAuth = async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      
+      try {
+        try {
+          await signInWithEmailAndPassword(auth, email, password);
+        } catch (signInError) {
+          if (signInError.code === 'auth/user-not-found' || signInError.code === 'auth/wrong-password') {
+            await createUserWithEmailAndPassword(auth, email, password);
+          } else {
+            throw signInError;
+          }
         }
+      } catch (error) {
+        alert('Error: ' + error.message);
+      }
+    };
 
-        // Language functions
-        let currentLang = 'en';
-        function selectLanguage(lang) { currentLang = lang; document.getElementById('languageModal').classList.add('hidden'); setLanguage(lang);}
-        function setLanguage(lang) {
-            currentLang = lang;
-            document.querySelectorAll('.lang-btn').forEach(btn=>btn.classList.remove('active'));
-            document.querySelectorAll('.lang-btn')[lang==='en'?0:1].classList.add('active');
-            document.querySelectorAll('[data-th]').forEach(el=>el.textContent=lang==='th'?el.getAttribute('data-th'):el.getAttribute('data-en'));
-            document.documentElement.lang = lang;
+    window.signOut = async () => {
+      if (unsubscribe) unsubscribe();
+      await fbSignOut(auth);
+    };
+
+    function showAuth() {
+      document.getElementById('authScreen').style.display = 'block';
+      document.getElementById('appScreen').style.display = 'none';
+    }
+
+    function showApp() {
+      document.getElementById('authScreen').style.display = 'none';
+      document.getElementById('appScreen').style.display = 'flex';
+      document.getElementById('userEmail').textContent = currentUser.email;
+    }
+
+    window.uploadFiles = async (event) => {
+      const files = event.target.files;
+      if (!files.length) return;
+      
+      document.getElementById('loading').classList.remove('hidden');
+      
+      for (const file of files) {
+        try {
+          // Convert file to base64
+          const base64 = await fileToBase64(file);
+          const folder = getFolderForFile(file);
+          
+          // Store in Firestore
+          await addDoc(collection(db, 'files'), {
+            userId: currentUser.uid,
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            folder: folder,
+            data: base64,
+            uploadedAt: new Date().toISOString()
+          });
+        } catch (error) {
+          alert('Error uploading ' + file.name + ': ' + error.message);
         }
+      }
+      
+      event.target.value = '';
+      document.getElementById('loading').classList.add('hidden');
+    };
 
-        // Tutorial modal
-        function openTutorial(event){event.preventDefault(); document.getElementById('tutorialModal').classList.add('show'); document.body.style.overflow='hidden';}
-        function closeTutorial(){document.getElementById('tutorialModal').classList.remove('show'); document.body.style.overflow='auto';}
-        function closeTutorialOnBackground(event){if(event.target.id==='tutorialModal'){closeTutorial();}}
-    </script>
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function getFolderForFile(file) {
+      if (file.type.startsWith('image/')) return 'images';
+      if (file.type.startsWith('video/')) return 'videos';
+      if (file.type.startsWith('application/') || file.type.startsWith('text/')) return 'documents';
+      return 'other';
+    }
+
+    window.changeFolder = async (folder) => {
+      currentFolderPath = folder;
+      document.querySelectorAll('.folder-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.folder === folder);
+      });
+      document.getElementById('currentFolder').textContent = folder === 'all' ? '' : ` / ${folder}`;
+      await loadFiles();
+    };
+
+    async function loadFiles() {
+      document.getElementById('loading').classList.remove('hidden');
+      const fileList = document.getElementById('fileList');
+      fileList.innerHTML = '';
+      
+      // Unsubscribe from previous listener
+      if (unsubscribe) unsubscribe();
+      
+      // Build query
+      let q = query(
+        collection(db, 'files'),
+        where('userId', '==', currentUser.uid)
+      );
+      
+      if (currentFolderPath !== 'all') {
+        q = query(
+          collection(db, 'files'),
+          where('userId', '==', currentUser.uid),
+          where('folder', '==', currentFolderPath)
+        );
+      }
+      
+      // Real-time listener
+      unsubscribe = onSnapshot(q, (snapshot) => {
+        fileList.innerHTML = '';
+        
+        snapshot.forEach((doc) => {
+          const fileData = doc.data();
+          renderFile(doc.id, fileData, fileList);
+        });
+        
+        document.getElementById('storageInfo').textContent = `${snapshot.size} files`;
+        document.getElementById('emptyState').classList.toggle('hidden', snapshot.size > 0);
+        document.getElementById('loading').classList.add('hidden');
+      });
+    }
+
+    function renderFile(id, fileData, container) {
+      const card = document.createElement('div');
+      card.className = 'file-card';
+      
+      const isImage = fileData.type?.startsWith('image/');
+      const isVideo = fileData.type?.startsWith('video/');
+      
+      let preview = '';
+      if (isImage) {
+        preview = `<img src="${fileData.data}" class="file-preview" onclick="previewFile('${fileData.data}', 'image')">`;
+      } else if (isVideo) {
+        preview = `<video src="${fileData.data}" class="file-preview" onclick="previewFile('${fileData.data}', 'video')"></video>`;
+      } else {
+        const icon = getFileIcon(fileData.type);
+        preview = `<div class="file-icon">${icon}</div>`;
+      }
+      
+      const sizeKB = (fileData.size / 1024).toFixed(2);
+      
+      card.innerHTML = `
+        ${preview}
+        <div class="file-name">${fileData.name}</div>
+        <div class="file-size">${sizeKB} KB</div>
+        <div class="file-actions">
+          <button class="action-btn download-btn" onclick="downloadFile('${fileData.data}', '${fileData.name}')">⬇️</button>
+          <button class="action-btn delete-btn" onclick="deleteFile('${id}')">🗑️</button>
+        </div>
+      `;
+      
+      container.appendChild(card);
+    }
+
+    function getFileIcon(type) {
+      if (type?.startsWith('application/pdf')) return '📕';
+      if (type?.startsWith('application/') || type?.startsWith('text/')) return '📄';
+      return '📦';
+    }
+
+    window.previewFile = (data, type) => {
+      const modal = document.getElementById('previewModal');
+      const content = document.getElementById('previewContent');
+      
+      if (type === 'image') {
+        content.innerHTML = `<img src="${data}" alt="Preview">`;
+      } else if (type === 'video') {
+        content.innerHTML = `<video src="${data}" controls autoplay style="max-width: 100%;"></video>`;
+      }
+      
+      modal.style.display = 'flex';
+    };
+
+    window.closePreview = () => {
+      document.getElementById('previewModal').style.display = 'none';
+      document.getElementById('previewContent').innerHTML = '';
+    };
+
+    window.downloadFile = (data, filename) => {
+      const a = document.createElement('a');
+      a.href = data;
+      a.download = filename;
+      a.click();
+    };
+
+    window.deleteFile = async (id) => {
+      if (!confirm('Delete this file?')) return;
+      
+      try {
+        await deleteDoc(doc(db, 'files', id));
+      } catch (error) {
+        alert('Error deleting file: ' + error.message);
+      }
+    };
+
+    // Close modal when clicking outside
+    window.onclick = (e) => {
+      const modal = document.getElementById('previewModal');
+      if (e.target === modal) {
+        closePreview();
+      }
+    };
+  </script>
 </body>
 </html>
